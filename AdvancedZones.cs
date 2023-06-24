@@ -1,4 +1,5 @@
-﻿using Rocket.API;
+﻿using Game4Freak.AdvancedZones.Managers;
+using Rocket.API;
 using Rocket.Core;
 using Rocket.Core.Plugins;
 using Rocket.Unturned;
@@ -108,6 +109,8 @@ namespace Game4Freak.AdvancedZones
             // Block Buildable
             BarricadeManager.onDeployBarricadeRequested += onBarricadeDeploy;
             StructureManager.onDeployStructureRequested += onStructureDepoly;
+
+            ZoneManager.Instance().Load();
         }
 
         protected override void Unload()
@@ -135,6 +138,8 @@ namespace Game4Freak.AdvancedZones
             // Block Buildable
             BarricadeManager.onDeployBarricadeRequested -= onBarricadeDeploy;
             StructureManager.onDeployStructureRequested -= onStructureDepoly;
+
+            ZoneManager.Instance().UnLoad();
         }
 
         private void updateConfig()
