@@ -756,12 +756,12 @@ namespace Game4Freak.AdvancedZones
 
         private void onVehicleDamage(CSteamID instigatorSteamID, InteractableVehicle vehicle, ref ushort pendingTotalDamage, ref bool canRepair, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
-            if ((transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noVehicleDamage]) && !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission("advancedzones.override.vehicledamage")) && pendingTotalDamage > 0)
+            if ((transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noVehicleDamage]) && (null == UnturnedPlayer.FromCSteamID(instigatorSteamID) || !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission("advancedzones.override.vehicledamage"))) && pendingTotalDamage > 0)
             {
                 List<Zone> currentZones = getPositionZones(vehicle.transform.position);
                 foreach (var zone in currentZones)
                 {
-                    if (zone.hasFlag(Zone.flagTypes[Zone.noVehicleDamage]) && !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission(("advancedzones.override.vehicledamage." + zone.getName()).ToLower()))
+                    if (zone.hasFlag(Zone.flagTypes[Zone.noVehicleDamage]) && (null == UnturnedPlayer.FromCSteamID(instigatorSteamID) || !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission(("advancedzones.override.vehicledamage." + zone.getName()).ToLower())))
                     {
                         shouldAllow = false;
                     }
