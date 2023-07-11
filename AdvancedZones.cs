@@ -237,9 +237,9 @@ namespace Game4Freak.AdvancedZones
                 {
                     if (!lastPosition.TryGetValue(player.Id, out lastPos))
                     {
-                        lastPos = player.Position;
+                        lastPos = getPosition(player);
                     }
-                    if (!lastPos.Equals(player.Position))
+                    if (!lastPos.Equals(getPosition(player)))
                     {
                         List<string> lastZoneNames = new List<string>();
                         foreach (var zone in getPositionZones(lastPos))
@@ -247,7 +247,7 @@ namespace Game4Freak.AdvancedZones
                             lastZoneNames.Add(zone.getName());
                         }
                         List<string> currentZoneNames = new List<string>();
-                        foreach (var zone in getPositionZones(player.Position))
+                        foreach (var zone in getPositionZones(getPosition(player)))
                         {
                             currentZoneNames.Add(zone.getName());
                         }
@@ -262,7 +262,7 @@ namespace Game4Freak.AdvancedZones
                             onZoneEnter(player, getZoneByName(zoneName), lastPos);
                         }
                     }
-                    lastPosition[player.Id] = player.Position;
+                    lastPosition[player.Id] = getPosition(player);
                 }
 
                 // Player Equip
@@ -300,6 +300,21 @@ namespace Game4Freak.AdvancedZones
                     }
                 }
             }
+        }
+
+        private Vector3 getPosition(UnturnedPlayer player)
+        {
+            if(null == player || null == player.Player || null == player.Player.transform)
+            {
+                CSteamID? cSteamID = player?.CSteamID;
+                if (cSteamID.HasValue)
+                {
+                    Provider.kick(player.CSteamID, "状态异常");
+                    Logger.Log($"KICK player: {player.CSteamID} for unnormal status");
+                }
+                return Vector3.zero;
+            }
+            return player.Position;
         }
 
         private void onZoneLeft(UnturnedPlayer player, Zone zone, Vector3 lastPos)

@@ -107,10 +107,12 @@ namespace Game4Freak.AdvancedZones.Managers
 
         public void onPlayerConnection(UnturnedPlayer player)
         {
-            if (!playerInZoneDict.TryGetValue(player.CSteamID, out var _))
+            if(playerInZoneDict.ContainsKey(player.CSteamID))
             {
-                playerInZoneDict.Add(player.CSteamID, new HashSet<string>());
+                playerInZoneDict.Remove(player.CSteamID);
             }
+
+            playerInZoneDict.Add(player.CSteamID, new HashSet<string>());
         }
 
         public void onPlayerDisconnection(UnturnedPlayer player)
