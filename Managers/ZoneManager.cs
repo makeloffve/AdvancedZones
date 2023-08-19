@@ -83,6 +83,28 @@ namespace Game4Freak.AdvancedZones.Managers
             return IsPlayerInZone(player.channel.owner.playerID.steamID, zoneName);
         }
 
+        public List<UnturnedPlayer> GetZonePlayers(string zoneName)
+        {
+            List<UnturnedPlayer> players = new List<UnturnedPlayer>();
+            Provider.clients.ForEach((client) =>
+            {
+                if (null == client) return;
+                try
+                {
+                    UnturnedPlayer player = UnturnedPlayer.FromSteamPlayer(client);
+                    if(IsPlayerInZone(player, zoneName))
+                    {
+                        players.Add(player);
+                    }
+                }
+                catch
+                {
+                    return;
+                }
+            });
+            return players;
+        }
+
         public void onZoneEnterHandler(UnturnedPlayer player, Zone zone, Vector3 lastPos)
         {
             HashSet<string> inZoneNames;
