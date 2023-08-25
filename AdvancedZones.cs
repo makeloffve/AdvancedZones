@@ -896,6 +896,25 @@ namespace Game4Freak.AdvancedZones
             }
         }
 
+        public bool IsVehicleInZones(InteractableVehicle vehicle, List<string> zoneNames)
+        {
+            if(null == vehicle || null == vehicle.transform) return false;
+            return IsPositionInZones(vehicle.transform.position, zoneNames);
+        }
+
+        public bool IsPositionInZones(Vector3 position, List<string> zoneNames)
+        {
+            if(null == position) return false;
+            List<Zone> zones = getPositionZones(position);
+            if(zones.IsEmpty()) return false;
+            List<string> positionInZoneNames = new List<string>();
+            foreach(Zone zone in zones)
+            {
+                positionInZoneNames.Add(zone.name);
+            }
+            return zoneNames.Intersect(positionInZoneNames).Count() > 0;
+        }
+
         public List<Zone> getPositionZones(Vector3 position)
         {
             List<Zone> zones = new List<Zone>();
