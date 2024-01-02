@@ -139,7 +139,16 @@ namespace Game4Freak.AdvancedZones.Managers
 
         public void onPlayerDisconnection(UnturnedPlayer player)
         {
-            playerInZoneDict.Remove(player.CSteamID);
+            Clean(player.CSteamID);
+        }
+
+        public void Clean(CSteamID cSteamID)
+        {
+            if(null == cSteamID || cSteamID == CSteamID.Nil)
+            {
+                return;
+            }
+            playerInZoneDict.Remove(cSteamID);
         }
     }
 }
