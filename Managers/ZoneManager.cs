@@ -39,7 +39,7 @@ namespace Game4Freak.AdvancedZones.Managers
         public HashSet<string> GetPlayerZoneNames(CSteamID cSteamID)
         {
             HashSet<string> zoneNames;
-            if (null == cSteamID || !playerInZoneDict.TryGetValue(cSteamID, out zoneNames))
+            if (null == cSteamID || cSteamID == CSteamID.Nil || !playerInZoneDict.TryGetValue(cSteamID, out zoneNames))
             {
                 zoneNames = new HashSet<string>();
             }
@@ -48,7 +48,7 @@ namespace Game4Freak.AdvancedZones.Managers
 
         public bool IsPlayerInZone(CSteamID cSteamID, string zoneName)
         {
-            if(null == cSteamID || string.IsNullOrEmpty(zoneName))
+            if(null == cSteamID || cSteamID == CSteamID.Nil || string.IsNullOrEmpty(zoneName))
             {
                 return false;
             }
@@ -63,24 +63,22 @@ namespace Game4Freak.AdvancedZones.Managers
 
         public HashSet<string> GetPlayerZoneNames(UnturnedPlayer player)
         {
-            CSteamID? cSteamID = player?.CSteamID;
-            return GetPlayerZoneNames(cSteamID.Value);
+            return GetPlayerZoneNames(getCSteamID(player));
         }
 
         public bool IsPlayerInZone(UnturnedPlayer player, string zoneName)
         {
-            CSteamID? cSteamID = player?.CSteamID;
-            return IsPlayerInZone(cSteamID.Value, zoneName);
+            return IsPlayerInZone(getCSteamID(player), zoneName);
         }
 
         public HashSet<string> GetPlayerZoneNames(Player player)
         {
-            return GetPlayerZoneNames(player.channel.owner.playerID.steamID);
+            return GetPlayerZoneNames(getCSteamID(player));
         }
 
         public bool IsPlayerInZone(Player player, string zoneName)
         {
-            return IsPlayerInZone(player.channel.owner.playerID.steamID, zoneName);
+            return IsPlayerInZone(getCSteamID(player), zoneName);
         }
 
         public List<UnturnedPlayer> GetZonePlayers(string zoneName)
@@ -108,20 +106,33 @@ namespace Game4Freak.AdvancedZones.Managers
         public void onZoneEnterHandler(UnturnedPlayer player, Zone zone, Vector3 lastPos)
         {
             HashSet<string> inZoneNames;
-            if (playerInZoneDict.TryGetValue(player.CSteamID, out inZoneNames))
+
+            CSteamID cSteamID = getCSteamID(player);
+            if(null == cSteamID || cSteamID == CSteamID.Nil)
+            {
+                return;
+            }
+
+            if (playerInZoneDict.TryGetValue(cSteamID, out inZoneNames))
             {
                 inZoneNames.Add(zone?.name);
             }
             else
             {
                 inZoneNames = new HashSet<string> { zone?.name };
-                playerInZoneDict.Add(player.CSteamID, inZoneNames);
+                playerInZoneDict.Add(cSteamID, inZoneNames);
             }
         }
 
         public void onZoneLeaveHandler(UnturnedPlayer player, Zone zone, Vector3 lastPos)
         {
-            if (playerInZoneDict.TryGetValue(player.CSteamID, out HashSet<string> inZoneNames))
+            CSteamID cSteamID = getCSteamID(player);
+            if (null == cSteamID || cSteamID == CSteamID.Nil)
+            {
+                return;
+            }
+
+            if (playerInZoneDict.TryGetValue(cSteamID, out HashSet<string> inZoneNames))
             {
                 inZoneNames.Remove(zone?.name);
             }
@@ -129,17 +140,23 @@ namespace Game4Freak.AdvancedZones.Managers
 
         public void onPlayerConnection(UnturnedPlayer player)
         {
-            if(playerInZoneDict.ContainsKey(player.CSteamID))
+            CSteamID cSteamID = getCSteamID(player);
+            if (null == cSteamID || cSteamID == CSteamID.Nil)
             {
-                playerInZoneDict.Remove(player.CSteamID);
+                return;
             }
 
-            playerInZoneDict.Add(player.CSteamID, new HashSet<string>());
+            if (playerInZoneDict.ContainsKey(cSteamID))
+            {
+                playerInZoneDict.Remove(cSteamID);
+            }
+
+            playerInZoneDict.Add(cSteamID, new HashSet<string>());
         }
 
         public void onPlayerDisconnection(UnturnedPlayer player)
         {
-            Clean(player.CSteamID);
+            Clean(getCSteamID(player));
         }
 
         public void Clean(CSteamID cSteamID)
@@ -150,5 +167,20 @@ namespace Game4Freak.AdvancedZones.Managers
             }
             playerInZoneDict.Remove(cSteamID);
         }
+
+        private CSteamID getCSteamID(UnturnedPlayer uPlayer)
+        {
+            return getCSteamID(uPlayer.Player);
+        }
+
+        private CSteamID getCSteamID(Player player)
+        {
+            if (null == player || null == player.transform)
+            {
+                return CSteamID.Nil;
+            }
+            return player.channel.owner.playerID.steamID;
+        }
+
     }
 }
