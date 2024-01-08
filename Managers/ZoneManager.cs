@@ -145,17 +145,18 @@ namespace Game4Freak.AdvancedZones.Managers
             {
                 return;
             }
+            //if (playerInZoneDict.ContainsKey(cSteamID))
+            //{
+            //    playerInZoneDict.Remove(cSteamID);
+            //}
 
-            if (playerInZoneDict.ContainsKey(cSteamID))
-            {
-                playerInZoneDict.Remove(cSteamID);
-            }
-
-            playerInZoneDict.Add(cSteamID, new HashSet<string>());
+            //playerInZoneDict.Add(cSteamID, new HashSet<string>());
+            playerInZoneDict[cSteamID] = new HashSet<string>();
         }
 
         public void onPlayerDisconnection(UnturnedPlayer player)
         {
+            if (null == player) return;
             Clean(getCSteamID(player));
         }
 
